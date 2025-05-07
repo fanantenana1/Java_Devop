@@ -1,25 +1,28 @@
 pipeline {
     agent any
 
+    environment {
+        MVN_HOME = tool 'M3' // Nom de l'outil Maven dans Jenkins
+    }
+
     stages {
-        stage('Clone and Clean Repo') {
+        stage('Clean') {
             steps {
-                sh 'git clone https://github.com/fanantenana1/Java_Devop.git'
-                sh 'mvn clean -f Java_Devop/Fanantenana/pom.xml'
+                sh '"$MVN_HOME/bin/mvn" clean -f Fanantenana/pom.xml'
             }
         }
 
         stage('Test') {
             steps {
-                sh 'mvn test -f Java_Devop/Fanantenana/pom.xml'
+                sh '"$MVN_HOME/bin/mvn" test -f Fanantenana/pom.xml'
             }
         }
 
         stage('Deploy') {
             steps {
-                sh 'mvn package -f Java_Devop/Fanantenana/pom.xml'
-                sh 'mvn deploy -f Java_Devop/Fanantenana/pom.xml'
-                sh 'mvn sonar:sonar -f Java_Devop/Fanantenana/pom.xml'
+                sh '"$MVN_HOME/bin/mvn" package -f Fanantenana/pom.xml'
+                sh '"$MVN_HOME/bin/mvn" deploy -f Fanantenana/pom.xml'
+                sh '"$MVN_HOME/bin/mvn" sonar:sonar -f Fanantenana/pom.xml'
             }
         }
     }
