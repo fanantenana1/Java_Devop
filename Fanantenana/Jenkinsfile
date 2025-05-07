@@ -2,23 +2,24 @@ pipeline {
     agent any
 
     stages {
-        stage('Clone & Clean') {
+        stage('Clone and Clean Repo') {
             steps {
-                echo 'Code déjà cloné par Jenkins via SCM'
-                sh 'mvn clean -f Fanantenana/pom.xml'
+                sh 'git clone https://github.com/fanantenana1/Java_Devop.git'
+                sh 'mvn clean -f Java_Devop/Fanantenana/pom.xml'
             }
         }
 
         stage('Test') {
             steps {
-                sh 'mvn test -f Fanantenana/pom.xml'
+                sh 'mvn test -f Java_Devop/Fanantenana/pom.xml'
             }
         }
 
         stage('Deploy') {
             steps {
-                sh 'mvn package -f Fanantenana/pom.xml'
-                sh 'mvn deploy -f Fanantenana/pom.xml'
+                sh 'mvn package -f Java_Devop/Fanantenana/pom.xml'
+                sh 'mvn deploy -f Java_Devop/Fanantenana/pom.xml'
+                sh 'mvn sonar:sonar -f Java_Devop/Fanantenana/pom.xml'
             }
         }
     }
@@ -28,7 +29,10 @@ pipeline {
             echo 'Pipeline ran successfully!'
         }
         failure {
-            echo 'Pipeline failed!'
+            echo 'Pipeline failed.'
+        }
+        always {
+            echo 'Pipeline finished.'
         }
     }
 }
