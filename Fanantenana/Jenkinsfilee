@@ -1,38 +1,38 @@
 pipeline {
     agent any
 
-    stages {
-        stage('Clone and Clean Repo') {
-            steps {
-                sh 'git clone https://github.com/fanantenana1/Java_Devop.git'
-                sh 'mvn clean -f Java_Devop/Fanantenana/pom.xml'
-            }
-        }
-
-        stage('Test') {
-            steps {
-                sh 'mvn test -f Java_Devop/Fanantenana/pom.xml'
-            }
-        }
-
-        stage('Deploy') {
-            steps {
-                sh 'mvn package -f Java_Devop/Fanantenana/pom.xml'
-                sh 'mvn deploy -f Java_Devop/Fanantenana/pom.xml'
-                sh 'mvn sonar:sonar -f Java_Devop/Fanantenana/pom.xml'
-            }
-        }
+    environment {
+        DOCKER_IMAGE = 'votre-utilisateur/java-devops:1.0'
     }
 
-    post {
-        success {
-            echo 'Pipeline ran successfully!'
+    stages {
+        stage('Build and Package') {
+            steps {
+                sh 'mvn -f Fanantenana/pom.xml clean package -DskipTests'
+            }
         }
-        failure {
-            echo 'Pipeline failed.'
+
+        stage('Build Docker Image') {
+            steps {
+                sh 'docker build -t $DOCKER_IMAGE .'
+            }
         }
-        always {
-            echo 'Pipeline finished.'
+
+        stage('Push Docker Image') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                    sh '''
+                      echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+                      docker push $DOCKER_IMAGE
+                    '''
+                }
+            }
+        }
+
+        stage('Run Container') {
+            steps {
+                sh 'docker run -d --rm --name fanantenana-app -p 8080:8080 $DOCKER_IMAGE'
+            }
         }
     }
 }
