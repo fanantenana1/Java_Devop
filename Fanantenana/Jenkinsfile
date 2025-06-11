@@ -14,6 +14,11 @@ pipeline {
                 sh 'mvn test -f Java_Devop/Fanantenana/pom.xml'
             }
         }
+         stage('Andrana') {
+            steps {
+                sh 'mvn test -f Java_Devop/Fanantenana/pom.xml'
+            }
+        }
 
         stage('Deploy') {
             steps {
